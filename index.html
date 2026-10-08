@@ -24,10 +24,11 @@
       </div>
 
       <section class="favorites" aria-labelledby="favorites-heading">
-        <h2 id="favorites-heading">Favorites</h2>
-        <p id="storage-notice" role="status" hidden>
-          Favorites can't be saved in this browser and will be lost when you reload.
-        </p>
+        <h2 id="favorites-heading" tabindex="-1">Favorites</h2>
+        <!-- The live region exists from page load so screen readers announce text added later. -->
+        <div role="status">
+          <p id="storage-notice" hidden></p>
+        </div>
         <p id="favorites-empty">No favorites yet</p>
         <ul id="favorites-list"></ul>
       </section>

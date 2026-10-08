@@ -233,6 +233,89 @@ test('favoriting every quote in the collection lists every one, newest first', (
   assert.equal(byId(document, 'quote-text').textContent, 'Third quote.');
 });
 
+// Favorites q01, q02, q03 in that order, so the list shows q03, q02, q01.
+function openPageWithThreeFavorites() {
+  const page = openPage({ random: sequenceRandom([0, 0, 0.99]) });
+  const { document } = page;
+  toggle(document).click();
+  byId(document, 'new-quote').click();
+  toggle(document).click();
+  byId(document, 'new-quote').click();
+  toggle(document).click();
+  return page;
+}
+
+function focusedName(document) {
+  return document.activeElement.getAttribute('aria-label');
+}
+
+test('removing a favorite moves focus to the Remove button that took its place', () => {
+  const { document } = openPageWithThreeFavorites();
+
+  removeButtons(document)[0].click(); // removes q03
+
+  assert.equal(document.activeElement, removeButtons(document)[0]);
+  assert.equal(focusedName(document), 'Remove favorite: Author Two — Second quote.');
+});
+
+test('removing the last favorite in the list moves focus to the one above it', () => {
+  const { document } = openPageWithThreeFavorites();
+
+  removeButtons(document)[2].click(); // removes q01
+
+  assert.equal(document.activeElement, removeButtons(document)[1]);
+  assert.equal(focusedName(document), 'Remove favorite: Author Two — Second quote.');
+});
+
+test('removing the only favorite moves focus to the Favorites heading', () => {
+  const { document } = openPage();
+  toggle(document).click();
+
+  removeButtons(document)[0].click();
+
+  assert.equal(document.activeElement, byId(document, 'favorites-heading'));
+});
+
+test('the can’t-save notice is inside a live region that is present from page load', () => {
+  const { document } = openPage();
+  const notice = byId(document, 'storage-notice');
+  const liveRegion = notice.closest('[role="status"]');
+
+  assert.ok(liveRegion, 'notice is not inside a role="status" region');
+  assert.notEqual(liveRegion, notice);
+  assert.equal(liveRegion.hidden, false);
+  assert.equal(notice.textContent, '');
+});
+
+test('when saving fails mid-visit, the notice text is added to the live region', () => {
+  const { document, storage } = openPage();
+
+  storage.setFailWrites(true);
+  toggle(document).click();
+
+  assert.equal(
+    byId(document, 'storage-notice').textContent,
+    "Favorites can't be saved in this browser and will be lost when you reload.",
+  );
+});
+
+test('once shown, the can’t-save notice is not rewritten by later clicks', () => {
+  const { window, document } = openPage({ storage: createFakeStorage({ blocked: true }) });
+  const observer = new window.MutationObserver(() => {});
+  observer.observe(byId(document, 'storage-notice'), {
+    childList: true,
+    characterData: true,
+    subtree: true,
+  });
+
+  byId(document, 'new-quote').click();
+  toggle(document).click();
+  toggle(document).click();
+
+  assert.deepEqual(observer.takeRecords(), []);
+  assert.equal(byId(document, 'storage-notice').hidden, false);
+});
+
 test('rapid toggling leaves the toggle and the list in agreement', () => {
   const { document } = openPage();
 

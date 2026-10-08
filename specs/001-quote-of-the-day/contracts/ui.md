@@ -13,7 +13,8 @@ The stable elements and behaviors that UI tests rely on. Tests locate elements b
 | `favorite-toggle` | `<button type="button">` | Toggle favorite on the main quote | FR-005, FR-006 |
 | `favorites-list` | `<ul>` | One `<li>` per favorite, newest first | FR-012 |
 | `favorites-empty` | `<p>` | "No favorites yet" message; hidden when the list has items | FR-012 |
-| `storage-notice` | `<p role="status">` | Can't-save notice; `hidden` unless saving is unavailable | FR-015 |
+| `favorites-heading` | `<h2 tabindex="-1">` | "Favorites" heading; receives focus when the last favorite is removed | FR-010 |
+| `storage-notice` | `<p>` inside a `<div role="status">` | Can't-save notice; `hidden` and empty unless saving is unavailable | FR-015 |
 
 ## Favorite toggle states
 
@@ -34,13 +35,17 @@ Each `<li>` contains:
   `Remove favorite: <author> — <first ~40 chars of text>`.
 
 Activating "Remove" removes the item and, if that quote is the main quote, sets the toggle to
-the not-a-favorite state in the same render (FR-013, US3 scenario 9).
+the not-a-favorite state in the same render (FR-013, US3 scenario 9). Focus then moves to the
+"Remove" button of the item that took its place, else the one above it, else the `Favorites`
+heading, so keyboard users stay in the list (FR-010).
 
 ## Can't-save notice
 
 - Text: "Favorites can't be saved in this browser and will be lost when you reload."
-- Shown (`hidden` removed) when the startup probe fails or any save fails; once shown, it stays
-  for the rest of the visit.
+- Shown (`hidden` removed and the text inserted) when the startup probe fails or any save fails;
+  once shown, it stays for the rest of the visit.
+- The surrounding `role="status"` live region is present from page load, so inserting the text
+  is announced by screen readers.
 - Never shown just because saved data was missing or corrupt.
 - Non-blocking: does not move focus or disable any control.
 

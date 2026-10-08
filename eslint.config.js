@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
+  // .specify/, .claude/, and specs/ hold Spec Kit tooling and documents, not app code.
   { ignores: ['node_modules/', '.specify/', '.claude/', 'specs/'] },
   js.configs.recommended,
   {

@@ -271,7 +271,7 @@ reload, and confirm it is gone and unmarked.
   named constants (Principle I, Quality Gate 5)
 - [X] T030 Run `npm run format`, then `npm run check`; fix every format, lint, and test failure;
   confirm `npm test` finishes in under 10 seconds (Quality Gates 1–2)
-- [ ] T031 Run the manual browser checks in [quickstart.md](./quickstart.md#manual-validation-browser)
+- [X] T031 Run the manual browser checks in [quickstart.md](./quickstart.md#manual-validation-browser)
   steps 1–6 and fix any failure (FR-011 layout, blocked storage, corrupt data)
 
 ---
@@ -370,6 +370,12 @@ Task: "Create styles.css"
 
 ## Phase 7: Convergence
 
-- [ ] T032 [US3] Keep keyboard focus in the favorites area after a favorite is removed from the list in `src/app.js`: when a "Remove" button is activated, move focus to the "Remove" button of the item that took its place, else the previous item's, else the `Favorites` heading (give `#favorites-heading` `tabindex="-1"` in `index.html`); first add a failing test in `tests/ui/favorites.test.js` asserting `document.activeElement` after removing the first, last, and only favorite per FR-010, US3/AC9 (partial)
-- [ ] T033 [US3] Make the can't-save notice reliably announced by screen readers when saving fails mid-visit: keep a `role="status"` live region present in the accessibility tree from page load and insert the notice text into it when `canSave` becomes `false` (the notice must still be visibly hidden while saving works, per contracts/ui.md); update `index.html`, `src/app.js`, and the storage-notice assertions in `tests/ui/favorites.test.js` (test first) per FR-015, plan: research R9 (partial)
-- [ ] T034 Record why `.specify/`, `.claude/`, and `specs/` are excluded from formatting and linting: add a short comment to `.prettierignore` and to the `ignores` entry in `eslint.config.js` (Spec Kit documents are hand-wrapped Markdown and are not app code) per T004, Constitution VI (unrequested)
+- [X] T032 [US3] Keep keyboard focus in the favorites area after a favorite is removed from the list in `src/app.js`: when a "Remove" button is activated, move focus to the "Remove" button of the item that took its place, else the previous item's, else the `Favorites` heading (give `#favorites-heading` `tabindex="-1"` in `index.html`); first add a failing test in `tests/ui/favorites.test.js` asserting `document.activeElement` after removing the first, last, and only favorite per FR-010, US3/AC9 (partial)
+- [X] T033 [US3] Make the can't-save notice reliably announced by screen readers when saving fails mid-visit: keep a `role="status"` live region present in the accessibility tree from page load and insert the notice text into it when `canSave` becomes `false` (the notice must still be visibly hidden while saving works, per contracts/ui.md); update `index.html`, `src/app.js`, and the storage-notice assertions in `tests/ui/favorites.test.js` (test first) per FR-015, plan: research R9 (partial)
+- [X] T034 Record why `.specify/`, `.claude/`, and `specs/` are excluded from formatting and linting: add a short comment to `.prettierignore` and to the `ignores` entry in `eslint.config.js` (Spec Kit documents are hand-wrapped Markdown and are not app code) per T004, Constitution VI (unrequested)
+
+---
+
+## Phase 8: Convergence
+
+- [X] T035 [US3] Stop re-announcing the can't-save notice on every render in `src/app.js`: change `#storage-notice` text only when its desired value differs from the current one, so the live region is written once when saving first fails; first add a failing test in `tests/ui/favorites.test.js` that uses a `MutationObserver` on `#storage-notice` with storage blocked and asserts that pressing "New quote" and the favorite toggle cause no mutations per FR-015, T033, plan: research R9 (partial)

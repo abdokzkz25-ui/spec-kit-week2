@@ -1,5 +1,6 @@
 node_modules/
 package-lock.json
+# Spec Kit files and feature specs are hand-wrapped Markdown, not app code.
 .specify/
 .claude/
 specs/

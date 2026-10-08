@@ -3,6 +3,8 @@ import { isFavorite, removeFavorite, toggleFavorite } from './favorites.js';
 
 const TOGGLE_LABEL = { favorited: '★ Favorited', notFavorited: '☆ Favorite' };
 const REMOVE_NAME_TEXT_LENGTH = 40;
+const STORAGE_NOTICE_TEXT =
+  "Favorites can't be saved in this browser and will be lost when you reload.";
 
 function findElements(document) {
   const byId = (id) => document.getElementById(id);
@@ -11,6 +13,7 @@ function findElements(document) {
     quoteAuthor: byId('quote-author'),
     newQuoteButton: byId('new-quote'),
     favoriteToggle: byId('favorite-toggle'),
+    favoritesHeading: byId('favorites-heading'),
     favoritesList: byId('favorites-list'),
     favoritesEmpty: byId('favorites-empty'),
     storageNotice: byId('storage-notice'),
@@ -56,7 +59,27 @@ function renderFavorites(elements, favoriteQuotes, canSave, onRemove) {
   const items = favoriteQuotes.map((quote) => createFavoriteItem(document, quote, onRemove));
   elements.favoritesList.replaceChildren(...items);
   elements.favoritesEmpty.hidden = items.length > 0;
+  // Inserting text into the live region is what gets announced, so write it only when it changes.
+  const noticeText = canSave ? '' : STORAGE_NOTICE_TEXT;
+  if (elements.storageNotice.textContent !== noticeText) {
+    elements.storageNotice.textContent = noticeText;
+  }
   elements.storageNotice.hidden = canSave;
+}
+
+// The pressed Remove button is gone after re-rendering, so keep keyboard users in the list.
+function focusAfterRemoval(elements, removedIndex) {
+  const buttons = elements.favoritesList.querySelectorAll('button');
+  const target = buttons[removedIndex] ?? buttons[removedIndex - 1] ?? elements.favoritesHeading;
+  target.focus();
+}
+
+function createInitialState(quotes, random, store) {
+  return {
+    currentQuoteId: pickRandomQuote(quotes, random).id,
+    favoriteIds: store.load(),
+    canSave: store.canSave(),
+  };
 }
 
 /**
@@ -66,19 +89,19 @@ function renderFavorites(elements, favoriteQuotes, canSave, onRemove) {
 export function startApp({ document, quotes, random, store }) {
   const elements = findElements(document);
   const quotesById = new Map(quotes.map((quote) => [quote.id, quote]));
-  const state = {
-    currentQuoteId: pickRandomQuote(quotes, random).id,
-    favoriteIds: store.load(),
-    canSave: store.canSave(),
-  };
+  const state = createInitialState(quotes, random, store);
 
   function render() {
     const favorited = isFavorite(state.favoriteIds, state.currentQuoteId);
     renderQuote(elements, quotesById.get(state.currentQuoteId), favorited);
     const favoriteQuotes = state.favoriteIds.map((id) => quotesById.get(id));
-    renderFavorites(elements, favoriteQuotes, state.canSave, (id) =>
-      updateFavorites(removeFavorite(state.favoriteIds, id)),
-    );
+    renderFavorites(elements, favoriteQuotes, state.canSave, removeFromList);
+  }
+
+  function removeFromList(id) {
+    const removedIndex = state.favoriteIds.indexOf(id);
+    updateFavorites(removeFavorite(state.favoriteIds, id));
+    focusAfterRemoval(elements, removedIndex);
   }
 
   function updateFavorites(nextFavoriteIds) {
