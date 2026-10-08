@@ -365,3 +365,11 @@ Task: "Create styles.css"
 - [P] tasks touch different files and have no dependencies on incomplete tasks.
 - Commit after each task or logical group, describing the behavior added (Development Workflow).
 - If implementation reveals a spec-level problem, fix spec.md or plan.md first, then the code.
+
+---
+
+## Phase 7: Convergence
+
+- [ ] T032 [US3] Keep keyboard focus in the favorites area after a favorite is removed from the list in `src/app.js`: when a "Remove" button is activated, move focus to the "Remove" button of the item that took its place, else the previous item's, else the `Favorites` heading (give `#favorites-heading` `tabindex="-1"` in `index.html`); first add a failing test in `tests/ui/favorites.test.js` asserting `document.activeElement` after removing the first, last, and only favorite per FR-010, US3/AC9 (partial)
+- [ ] T033 [US3] Make the can't-save notice reliably announced by screen readers when saving fails mid-visit: keep a `role="status"` live region present in the accessibility tree from page load and insert the notice text into it when `canSave` becomes `false` (the notice must still be visibly hidden while saving works, per contracts/ui.md); update `index.html`, `src/app.js`, and the storage-notice assertions in `tests/ui/favorites.test.js` (test first) per FR-015, plan: research R9 (partial)
+- [ ] T034 Record why `.specify/`, `.claude/`, and `specs/` are excluded from formatting and linting: add a short comment to `.prettierignore` and to the `ignores` entry in `eslint.config.js` (Spec Kit documents are hand-wrapped Markdown and are not app code) per T004, Constitution VI (unrequested)
